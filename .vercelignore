@@ -1,0 +1,43 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Development files
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test files
+test_*.py
+demo.py
+
+# Documentation
+VENV_SETUP.md
+QUICK_START.md
+README.md
+
+# Startup scripts
+start.py
+start.bat
+activate_venv.bat
+manage_venv.py
+
+# Git
+.git/
+.gitignore 

@@ -63,6 +63,24 @@ A professional FastAPI application that provides language translation services w
    - API Documentation: http://localhost:8000/docs
    - Alternative API Docs: http://localhost:8000/redoc
 
+## 🚀 Deployment
+
+### Vercel Deployment (Recommended)
+
+The application is optimized for Vercel deployment:
+
+1. **Prepare for deployment:**
+   ```bash
+   python deploy-vercel.py
+   ```
+
+2. **Deploy to Vercel:**
+   - Push to GitHub
+   - Connect to Vercel
+   - Automatic deployment
+
+See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for detailed instructions.
+
 ## Usage
 
 ### Web Interface
