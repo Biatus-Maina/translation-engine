@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Engine - Professional Language Translation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 1rem;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .language-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .select-wrapper select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6b7280;
+        }
+
+        .translate-btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .translate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detection-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .language-badge {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .confidence-badge {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .text-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 15px;
+        }
+
+        .text-content h4 {
+            color: #374151;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .text-content p {
+            color: #6b7280;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #374151;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .language-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-language"></i> Translation Engine</h1>
+            <p>Professional language translation with auto-detection powered by Google Translate</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="inputText">
+                        <i class="fas fa-keyboard"></i> Enter text to translate:
+                    </label>
+                    <textarea 
+                        id="inputText" 
+                        class="text-input" 
+                        placeholder="Type or paste your text here... (supports 100+ languages)"
+                        maxlength="5000"
+                    ></textarea>
+                    <div style="text-align: right; margin-top: 5px; color: #6b7280; font-size: 0.9rem;">
+                        <span id="charCount">0</span>/5000
+                    </div>
+                </div>
+
+                <div class="language-selector">
+                    <div class="select-wrapper">
+                        <label for="targetLanguage">
+                            <i class="fas fa-flag"></i> Translate to:
+                        </label>
+                        <select id="targetLanguage">
+                            <option value="">Select target language...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="translateBtn" class="translate-btn">
+                    <i class="fas fa-translate"></i>
+                    <span id="btnText">Translate Text</span>
+                </button>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Detecting language and translating...</p>
+            </div>
+
+            <div id="resultsSection" class="results-section">
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="detection-info">
+                            <span class="language-badge" id="detectedLanguage">English</span>
+                            <span class="confidence-badge" id="confidenceLevel">95%</span>
+                        </div>
+                        <div style="color: #6b7280; font-size: 0.9rem;">
+                            <i class="fas fa-clock"></i> <span id="translationTime">0.5s</span>
+                        </div>
+                    </div>
+
+                    <div class="text-content">
+                        <h4><i class="fas fa-file-alt"></i> Original Text:</h4>
+                        <p id="originalText"></p>
+                    </div>
+
+                    <div class="text-content">
+                        <h4><i class="fas fa-language"></i> Translation:</h4>
+                        <p id="translatedText"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <i class="fas fa-magic"></i>
+                    <h3>Auto-Detection</h3>
+                    <p>Automatically detects the input language with confidence scoring</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-globe"></i>
+                    <h3>100+ Languages</h3>
+                    <p>Support for major world languages and dialects</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Fast & Reliable</h3>
+                    <p>Powered by Google Translate for accurate results</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Professional</h3>
+                    <p>Built with modern web technologies and best practices</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TranslationEngine {
+            constructor() {
+                this.initializeElements();
+                this.loadLanguages();
+                this.setupEventListeners();
+            }
+
+            initializeElements() {
+                this.inputText = document.getElementById('inputText');
+                this.targetLanguage = document.getElementById('targetLanguage');
+                this.translateBtn = document.getElementById('translateBtn');
+                this.btnText = document.getElementById('btnText');
+                this.loading = document.getElementById('loading');
+                this.resultsSection = document.getElementById('resultsSection');
+                this.errorMessage = document.getElementById('errorMessage');
+                this.charCount = document.getElementById('charCount');
+                
+                // Result elements
+                this.detectedLanguage = document.getElementById('detectedLanguage');
+                this.confidenceLevel = document.getElementById('confidenceLevel');
+                this.originalText = document.getElementById('originalText');
+                this.translatedText = document.getElementById('translatedText');
+                this.translationTime = document.getElementById('translationTime');
+            }
+
+            async loadLanguages() {
+                try {
+                    const response = await fetch('/api/languages');
+                    const languages = await response.json();
+                    
+                    // Sort languages by name
+                    languages.sort((a, b) => a.name.localeCompare(b.name));
+                    
+                    // Populate dropdown
+                    languages.forEach(lang => {
+                        const option = document.createElement('option');
+                        option.value = lang.code;
+                        option.textContent = `${lang.name} (${lang.native_name})`;
+                        this.targetLanguage.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Failed to load languages:', error);
+                    this.showError('Failed to load supported languages');
+                }
+            }
+
+            setupEventListeners() {
+                this.translateBtn.addEventListener('click', () => this.translate());
+                this.inputText.addEventListener('input', () => this.updateCharCount());
+                this.inputText.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.translate();
+                    }
+                });
+            }
+
+            updateCharCount() {
+                const count = this.inputText.value.length;
+                this.charCount.textContent = count;
+                
+                if (count > 4500) {
+                    this.charCount.style.color = '#dc2626';
+                } else if (count > 4000) {
+                    this.charCount.style.color = '#f59e0b';
+                } else {
+                    this.charCount.style.color = '#6b7280';
+                }
+            }
+
+            async translate() {
+                const text = this.inputText.value.trim();
+                const targetLang = this.targetLanguage.value;
+
+                if (!text) {
+                    this.showError('Please enter some text to translate');
+                    return;
+                }
+
+                if (!targetLang) {
+                    this.showError('Please select a target language');
+                    return;
+                }
+
+                this.setLoading(true);
+                this.hideError();
+                this.hideResults();
+
+                const startTime = Date.now();
+
+                try {
+                    const response = await fetch('/api/translate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            target_language: targetLang
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Translation failed');
+                    }
+
+                    const result = await response.json();
+                    const translationTime = ((Date.now() - startTime) / 1000).toFixed(1);
+                    
+                    this.displayResults(result, translationTime);
+                } catch (error) {
+                    console.error('Translation error:', error);
+                    this.showError(error.message || 'Translation failed. Please try again.');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            displayResults(result, translationTime) {
+                // Get language names
+                const detectedLangName = this.getLanguageName(result.detected_language);
+                const targetLangName = this.getLanguageName(result.target_language);
+                
+                // Update UI
+                this.detectedLanguage.textContent = detectedLangName;
+                this.confidenceLevel.textContent = `${Math.round(result.confidence_level * 100)}%`;
+                this.originalText.textContent = result.original_text;
+                this.translatedText.textContent = result.translated_text;
+                this.translationTime.textContent = `${translationTime}s`;
+
+                // Show results
+                this.resultsSection.classList.add('show');
+                
+                // Scroll to results
+                this.resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            getLanguageName(code) {
+                const option = this.targetLanguage.querySelector(`option[value="${code}"]`);
+                if (option) {
+                    return option.textContent.split(' (')[0];
+                }
+                return code.toUpperCase();
+            }
+
+            setLoading(loading) {
+                if (loading) {
+                    this.loading.classList.add('show');
+                    this.translateBtn.disabled = true;
+                    this.btnText.textContent = 'Translating...';
+                } else {
+                    this.loading.classList.remove('show');
+                    this.translateBtn.disabled = false;
+                    this.btnText.textContent = 'Translate Text';
+                }
+            }
+
+            showError(message) {
+                this.errorMessage.textContent = message;
+                this.errorMessage.classList.add('show');
+                this.errorMessage.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            hideError() {
+                this.errorMessage.classList.remove('show');
+            }
+
+            hideResults() {
+                this.resultsSection.classList.remove('show');
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TranslationEngine();
+        });
+    </script>
+</body>
+</html> 
